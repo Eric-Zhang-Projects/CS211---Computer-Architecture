@@ -11,7 +11,7 @@ Program:
 
 2. We use fscanf in a while loop to scan the input file for addresses until we hit the end of the inputted file. From here, we will perform operations on the address to determine its placement in the cache.
 In the Loop:
-WITHOUT PREFETCHING=====================================================================================================================
+WITHOUT PREFETCHING========================================================================
 3. Cut off the block offset using bit shifting. address >> blockoff will provide the tag and the set bits. In this simulation we do not need to worry about the data itself so simply cutting off the blockoffset is fine.
 4. Determine the set index, or the set number. We can do this using the equation setIndex=(address>>blockoff) && ((1<<setoff)-1) to isolate the set bits, giving use the setIndex. Afterwards, we can use address>>(blockoff+setoff) to leave us with only the tag.
 At this juncture, we have:
@@ -27,6 +27,9 @@ In this loop:
 7. Outside of the for loop, an if statement checks if the loop has fully executed, meaning that neither of the two previous conditions broke the loop early, meaning that the tag has missed in a set which contains no invalid bits. Being a miss, we increment accordingly, and set the tag at the smallest, or oldest tag's location as previous calculated in step 5, and assigning the current counter to its age.
 8.Now we output the information, ending the non prefetching cache.
 
-WITH PREFETCHING========================================================================================================================
+WITH PREFETCHING==============================================================================
 
-9. 
+The general principle behind prefetching is almost the exact same as that without prefetching- basically if the tag results in a miss, the prefetching address, as described earlier, will be looked for in its own set corresponding to the prefetched address (prefadd). If it already exists, IT IS NOT A HIT, and does nothing. If it is not, it will load the new prefadd into the cache following the same principles as normal, and will count as a memory read. In implementation:
+
+9. Because prefetching occurs where the cache will result in a miss, in this code this will occur twice. Therefore, in the if statement for determining if there is an invalid bit, when it evaluates to true and a miss occurs, create a copy of the original for loop to determine the oldest tag in the set, but this time apply it to the prefadd setIndex and determine the oldest block. Afterwards, follow the small pattern for the previous nonfetching cache to load and or not load depending on your cache.
+
